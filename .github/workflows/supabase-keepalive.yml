@@ -1,0 +1,33 @@
+name: Supabase Keep-Alive (Anti-Pausa RQ-01)
+
+on:
+  schedule:
+    # Executa automaticamente a cada 3 dias às 08:00 UTC (impede pausa de 7 dias do Supabase Free)
+    - cron: '0 8 */3 * *'
+  workflow_dispatch: # Permite testar manualmente na aba Actions do GitHub
+
+jobs:
+  ping-supabase:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Consultar tabela schools no Supabase
+        env:
+          SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+        run: |
+          if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_ANON_KEY" ]; then
+            echo "Configure NEXT_PUBLIC_SUPABASE_URL e NEXT_PUBLIC_SUPABASE_ANON_KEY em Settings -> Secrets and variables -> Actions no GitHub."
+            exit 1
+          fi
+          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+            "${SUPABASE_URL}/rest/v1/schools?select=id&limit=1" \
+            -H "apikey: ${SUPABASE_ANON_KEY}" \
+            -H "Authorization: Bearer ${SUPABASE_ANON_KEY}")
+          echo "Supabase respondeu com HTTP $HTTP_STATUS"
+          if [ "$HTTP_STATUS" -ge 200 ] && [ "$HTTP_STATUS" -lt 300 ]; then
+            echo "✅ Keep-alive concluído com sucesso!"
+          else
+            echo "❌ Falha ao contatar o Supabase (HTTP $HTTP_STATUS)"
+            exit 1
+          fi
+

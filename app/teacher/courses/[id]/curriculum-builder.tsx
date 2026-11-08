@@ -14,8 +14,6 @@ import {
     useSensor,
     useSensors,
     DragEndEvent,
-    DragStartEvent,
-    defaultDropAnimationSideEffects,
 } from '@dnd-kit/core';
 import {
     arrayMove,
