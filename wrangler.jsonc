@@ -15,6 +15,7 @@
       "binding": "WORKER_SELF_REFERENCE",
       "service": "campus-online-saas"
     }
-  ]
+  ],
+  "previews": {}
 }
 
